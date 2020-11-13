@@ -35,7 +35,9 @@ It will automatically ignore your node_modules folder and any files/folders that
   },
   "nodemonConfig": {
     watch: ["api/"],
-    ignore: ["api/scripts"]
+    ignore: ["api/scripts"],
+    // optional execute script, for example to use babel-node    
+    "exec": "babel-node api/start.js"
   },
   ...
 }

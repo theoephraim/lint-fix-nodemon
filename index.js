@@ -21,15 +21,12 @@ const { nodemonConfig } = packageJson;
 // you can pass in the script to run or it will default to the "main" in package.json
 const mainScript = args[0] || packageJson.main;
 
-
 const eslintCLI = new CLIEngine({
   fix: true,
   cache: true,
   ignorePath: '.gitignore',
 });
 const formatter = eslintCLI.getFormatter();
-
-
 
 let appProcess;
 function runLinter() {
@@ -43,6 +40,7 @@ function runLinter() {
   // return info on whether any fixes were made
   return {
     fixes: _.some(report.results, 'output'),
+    errors: _.some(report.results, (f) => f.errorCount > 0),
     fatal: _.some(report.results, (file) => _.some(file.messages, { fatal: true })),
   };
 }
@@ -53,18 +51,22 @@ function startServer() {
     appProcess.restart();
   } else {
     console.log('>> Starting server <<'.green);
-    appProcess = nodemon({
+
+    const nodemonOptions = {
       script: mainScript,
       watch: false,
       inspect: true,
-    });
+    };
+
+    if (nodemonConfig.exec) nodemonOptions.exec = nodemonConfig.exec;
+
+    appProcess = nodemon(nodemonOptions);
   }
 }
 function stopServer() {
   nodemon.emit('quit');
   appProcess = null;
 }
-
 
 let ignoreNextChange = false;
 
@@ -84,19 +86,28 @@ function lintAndRun() {
   }
 
   if (lintResults.fixes) ignoreNextChange = true;
+
+  if (lintResults.errors) {
+    console.log('>> Errors detected, fix errors first to continue running code <<'.red);
+    stopServer();
+    return;
+  }
+
   startServer();
 }
 
 // watch files for changes, run linter and restart server
-chokidar.watch(nodemonConfig.watch, {
-  ignored: [
-    'node_modules', // ignore node_modules
-    /(^|[/\\])\../, // ignore anything starting with .
-    ...nodemonConfig.ignore || [],
-  ],
-}).on('change', (event, path) => {
-  lintAndRun();
-});
+chokidar
+  .watch(nodemonConfig.watch, {
+    ignored: [
+      'node_modules', // ignore node_modules
+      /(^|[/\\])\../, // ignore anything starting with .
+      ...(nodemonConfig.ignore || []),
+    ],
+  })
+  .on('change', (event, path) => {
+    lintAndRun();
+  });
 
 lintAndRun();
 
