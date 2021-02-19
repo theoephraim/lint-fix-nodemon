@@ -4,7 +4,7 @@
   "author": "Theo Ephraim <theozero@gmail.com> (https://theoephraim.com)",
   "bin": "index.js",
   "license": "Unlicense",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "dependencies": {
     "chokidar": "^3.3.1",
     "colors": "^1.4.0",

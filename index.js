@@ -21,11 +21,12 @@ const { nodemonConfig } = packageJson;
 // you can pass in the script to run or it will default to the "main" in package.json
 const mainScript = args[0] || packageJson.main;
 
-
 const eslintCLI = new CLIEngine({
   fix: true,
   cache: true,
   ignorePath: '.gitignore',
+  // if nodemon has extensions set, we'll copy those, otherwise default to just js (as eslint does already)
+  extensions: (nodemonConfig.ext || 'js').split(','),
 });
 const formatter = eslintCLI.getFormatter();
 

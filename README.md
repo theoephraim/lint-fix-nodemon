@@ -25,6 +25,14 @@ Other configuration in terms of what files to watch and lint will be read from t
 It will automatically ignore your node_modules folder and any files/folders that start with "."
 
 
+### Setting ESLint extensions
+
+Normally when running eslint from the cli, you must specify the extensions you wish to run on, or it will automatically just default to .js files only.
+
+To avoid having to set it again, we copy the extension settings from the nodemon config set in package.json file.
+This may mean you need to add some ignore rules in your eslintrc file, to ignore certain file types that you don't want to lint, but you do want changes to cause a nodemon restart.
+
+
 ### An example package.json file
 ```
 {
@@ -34,8 +42,9 @@ It will automatically ignore your node_modules folder and any files/folders that
     ...
   },
   "nodemonConfig": {
-    watch: ["api/"],
-    ignore: ["api/scripts"]
+    "watch": ["api/"],
+    "ignore": ["api/scripts"],
+    "ext": "js,json,ts"
   },
   ...
 }
